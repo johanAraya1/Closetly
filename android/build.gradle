@@ -15,10 +15,12 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://repo.expo.dev/maven' }
     }
     dependencies {
         classpath('com.android.tools.build:gradle:7.4.2')
         classpath('com.facebook.react:react-native-gradle-plugin')
+        classpath('expo.modules:expo-modules-gradle-plugin:1.5.13')
     }
 }
 
@@ -36,5 +38,19 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
+        maven { url 'https://repo.expo.dev/maven' }
+    }
+    
+    plugins {
+        withId('com.android.library') {
+            android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+            }
+        }
+        withId('com.android.application') {
+            android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+            }
+        }
     }
 }

@@ -1,3 +1,13 @@
+pluginManagement {
+    repositories {
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+        maven { url 'https://repo.expo.dev/maven' }
+        maven { url 'https://plugins.gradle.org/m2/' }
+    }
+}
+
 rootProject.name = 'Closetly'
 
 apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
