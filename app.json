@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Closetly",
+    "slug": "closetly",
+    "version": "1.0.0",
+    "sdkVersion": "49.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "android": {
+      "icon": "./assets/icon.png"
+    },
+    "ios": {
+      "icon": "./assets/icon.png"
+    },
+    "userInterfaceStyle": "automatic",
+    "extra": {
+      "supabaseUrl": "process.env.EXPO_PUBLIC_SUPABASE_URL",
+      "supabaseAnonKey": "process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY",
+      "openAiKey": "process.env.OPENAI_API_KEY",
+      "removeBgKey": "process.env.REMOVE_BG_API_KEY",
+      "posthogApiKey": "process.env.EXPO_PUBLIC_POSTHOG_KEY",
+      "eas": {
+        "projectId": "2e92ed2e-9d74-4a40-8af7-a064109310ca"
+      }
+    },
+    "updates": {
+      "enabled": false
+    }
+  }
+}
