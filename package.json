@@ -37,7 +37,8 @@
     "sentry-expo": "~7.1.0",
     "supabase": "^2.0.0",
     "zod": "^3.23.0",
-    "zustand": "^4.4.0"
+    "zustand": "^4.4.0",
+    "expo-system-ui": "~2.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
