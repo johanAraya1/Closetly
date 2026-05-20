@@ -6,7 +6,5 @@ dist/
 .DS_Store
 .env
 .env.*
-android/
-ios/
 .expo/.metrics
 .vscode/
