@@ -40,17 +40,4 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
         maven { url 'https://repo.expo.dev/maven' }
     }
-    
-    plugins {
-        withId('com.android.library') {
-            android {
-                compileSdkVersion rootProject.ext.compileSdkVersion
-            }
-        }
-        withId('com.android.application') {
-            android {
-                compileSdkVersion rootProject.ext.compileSdkVersion
-            }
-        }
-    }
 }
