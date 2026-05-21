@@ -10,6 +10,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: "automatic",
   jsEngine: "hermes",
   owner: process.env.EXPO_OWNER,
+  projectId: "2e92ed2e-9d74-4a40-8af7-a064109310ca",
   runtimeVersion: {
     policy: "appVersion"
   },

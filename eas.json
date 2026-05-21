@@ -20,10 +20,21 @@
       }
     },
     "production": {
+      "distribution": "store",
       "channel": "production",
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_APP_ENV": "production"
+      }
+    },
+    "device": {
+      "distribution": "internal",
+      "channel": "device",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "development"
       }
     }
   },
