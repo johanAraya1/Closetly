@@ -1,35 +1,55 @@
 # Closetly
 
-Closetly es un MVP móvil-first creado con Expo + React Native + Supabase. Está diseñado para ser una plataforma social de closet virtual, outfits y networking de moda, con IA en backend y observabilidad integrada.
+Closetly is an Expo + Supabase MVP for a smart virtual closet, fashion social layer, and low-cost AI recommendation system.
 
-## Estructura
+## Run Locally
 
-- `src/` - código fuente de frontend
-- `src/app/` - pantallas y rutas Expo Router
-- `src/components/` - componentes UI reutilizables
-- `src/features/` - domain features: auth, closet, outfits, explore, chat, settings
-- `src/services/` - API, Supabase, IA y analytics
-- `src/store/` - estado global, persistencia ligera
-- `supabase/` - esquema SQL, políticas y edge functions
+1. Install dependencies:
 
-## Instalación
+```bash
+npm install
+```
 
-1. Instalar dependencias:
-   `npm install`
-2. Copiar `.env.example` a `.env` y configurar variables.
-3. Ejecutar en modo desarrollo:
-   `npm run start`
+2. Copy environment variables:
 
-## Notas de arquitectura
+```bash
+cp .env.example .env
+```
 
-- Frontend UI-only: la lógica de negocio crítica, permisos y RLS se manejan en Supabase y Edge Functions.
-- RLS obligatorio en todas las tablas.
-- IA y eliminación de fondo se ejecutan a través de funciones proxy en el backend.
-- Observabilidad con Sentry, PostHog y logs de Supabase.
+3. Start Expo:
 
-## Roadmap MVP
+```bash
+npm start
+```
 
-1. Autenticación / perfiles / upload prendas
-2. Outfits / IA básica
-3. Explore social / búsquedas
-4. Chat / premium
+4. Apply Supabase schema:
+
+```bash
+supabase db push
+```
+
+5. Deploy Edge Functions:
+
+```bash
+supabase functions deploy analyze-garment
+supabase functions deploy remove-bg-proxy
+supabase functions deploy generate-outfit
+supabase functions deploy cleanup-orphan-assets
+```
+
+## Main Paths
+
+- Mobile app: `src/app`
+- Feature modules: `src/features`
+- Shared services: `src/services`
+- Supabase schema and RLS: `supabase/schema.sql`
+- Edge Functions: `supabase/edge-functions`
+- Architecture spec: `ARCHITECTURE.md`
+
+## MVP Cost Posture
+
+- Public feeds are not realtime.
+- Original images are private and compressed to WebP before upload.
+- Thumbnails are public, cached, and small.
+- AI calls run only through Edge Functions with rate limits and cached job state.
+- Embeddings are disabled by default through `CLOSETLY_EMBEDDINGS_ENABLED=false`.

@@ -1,19 +1,22 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./src/**/*.{js,ts,jsx,tsx}"
-  ],
+  presets: [require("nativewind/preset")],
+  content: ["./src/**/*.{ts,tsx}", "./App.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        background: "#F8F8F8",
+        canvas: "#F8F8F8",
         surface: "#FFFFFF",
-        primary: "#8B5CF6",
-        primaryDark: "#A78BFA",
-        secondary: "#D6D3D1",
-        text: "#1F1F1F",
-        textDark: "#F5F5F5"
+        ink: "#1F1F1F",
+        muted: "#D6D3D1",
+        violet: "#8B5CF6",
+        darkCanvas: "#121212",
+        darkSurface: "#1E1E1E",
+        darkInk: "#F5F5F5",
+        darkViolet: "#A78BFA"
+      },
+      borderRadius: {
+        card: "8px"
       }
     }
   },

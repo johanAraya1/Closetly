@@ -1,208 +1,209 @@
-# Closetly Architecture & Design
+# Closetly Architecture
 
-## 1. Visión General
-Closetly es un MVP mobile-first que combina un closet virtual personal, generación de outfits e interacción social. El frontend es un cliente React Native con Expo y Expo Router, mientras que el backend es Supabase serverless con RLS y Edge Functions para IA.
+## 1. Vision General
+
+Closetly es un closet virtual inteligente con capa social de moda y recomendaciones IA. El MVP prioriza costo cero o casi cero: Expo para iteracion rapida, Supabase para backend administrado, Postgres como fuente de verdad, Storage con WebP y thumbnails, y Edge Functions para toda logica sensible.
 
 ## 2. Arquitectura
-- Monolito modular mobile-first.
-- Frontend UI-only: navegación, requests, renderizado.
-- Backend serverless en Supabase: autenticación, storage, realtime, funciones Edge y PostgreSQL.
-- Separación de capas:
-  - UI (React Native)
-  - Servicios (Supabase, OpenAI, remove.bg)
-  - Dominio y seguridad (RLS + políticas)
-  - Persistencia (PostgreSQL + Storage)
 
-## 3. Stack Tecnológico
-Frontend:
-- React Native
-- Expo
-- Expo Router
-- TypeScript
-- NativeWind
-- TanStack Query
-- Zustand
-- Axios
+Usa monolito modular mobile-first con feature-first architecture y clean architecture parcial. La app vive en `src/features/*`; cada feature contiene `screens`, `components`, `hooks`, `services`, `validations`, `types`, analytics y manejo de errores.
 
-Backend:
-- Supabase Auth
-- PostgreSQL
-- Supabase Storage
-- Supabase Realtime
-- Supabase Edge Functions
-- RLS
+El cliente solo presenta estado, manda comandos y cachea. Supabase valida permisos con RLS, constraints, triggers y Edge Functions.
 
-Observabilidad:
-- Sentry
-- PostHog
-- Supabase Logs
+## 3. Decisiones Tecnicas
 
-IA:
-- OpenAI API
-- remove.bg (proxy backend)
+Supabase se elige porque combina Auth, Postgres, Storage, Edge Functions, Realtime y logs en una sola plataforma con buen free tier. Se evitan microservicios porque agregarian deploys, tracing, costos y latencia antes de tener volumen real.
 
-## 4. Estructura Proyecto
-```
-closetly/
+Realtime se limita a chats y notificaciones criticas. Feeds, likes masivos y explore usan query cache, paginacion e invalidacion selectiva.
+
+## 4. Stack
+
+- Frontend: React Native, Expo SDK 51, TypeScript, Expo Router, Zustand, TanStack Query, Axios, React Hook Form, Zod, NativeWind.
+- Backend: Supabase, PostgreSQL, Auth, Storage, Realtime, Edge Functions.
+- IA: OpenAI Responses API con Structured Outputs; remove.bg como proveedor reemplazable.
+- Observabilidad: Sentry, PostHog, Supabase Logs.
+- Deploy: EAS Build y OTA Updates.
+
+## 5. Estructura Proyecto
+
+```text
+src/
   app/
-    _layout.tsx
-    index.tsx
-    auth/login.tsx
-    auth/register.tsx
-    closet/index.tsx
-    outfits/index.tsx
-    explore/index.tsx
-    chat/index.tsx
-    settings.tsx
-  assets/
-  src/
-    components/ui/
-    features/
-    services/
-    store/
-    hooks/
-    lib/
-    types/
-    constants/
-    utils/
-  supabase/
-    schema.sql
-    policies.md
-    edge-functions/
-      ia-proxy/index.ts
-      remove-bg-proxy/index.ts
-  package.json
-  tsconfig.json
-  app.json
-  README.md
+  components/
+  features/
+  services/
+  hooks/
+  store/
+  lib/
+  constants/
+  theme/
+  i18n/
+  types/
+  utils/
+supabase/
+  schema.sql
+  policies.md
+  edge-functions/
 ```
 
-## 5. PostgreSQL Schema
-El esquema implementa tablas estrictas para:
-- users
-- garments
-- outfits
-- outfit_garments
-- chats
-- chat_participants
-- messages
-- reports
+## 6. Base de Datos
 
-Todos los campos recomendados en el requerimiento están incluidos, con índices para búsquedas y filtrados.
+Postgres modela usuarios, prendas, outfits, colecciones, chat, mensajes, reportes, notificaciones, favoritos, follows y eventos. Todas las tablas sensibles tienen RLS, `created_at`, `updated_at` cuando aplica, soft delete con `deleted_at`, constraints y indices parciales.
 
-## 6. Supabase Backend
-- `schema.sql` crea tablas y habilita RLS.
-- `policies.md` define políticas de acceso por tabla.
-- Edge Functions expone proxies backend para OpenAI y remove.bg.
-- Supabase Storage guarda imágenes con rutas organizadas y thumbnails.
+## 7. SQL Schema
 
-## 7. Seguridad
-- RLS obligatorio en todas las tablas.
-- Validación backend-first: la única fuente de verdad es Supabase.
-- API keys nunca expuestas al cliente.
-- Proxy backend para IA.
-- Sanitización de inputs con Zod en frontend y se debe complementar con validación en funciones.
-- Protección de rutas mediante `auth.uid()` en políticas.
-- Bloqueo y reportes administrados en backend.
+El schema completo esta en `supabase/schema.sql`. Incluye extensiones `pgcrypto`, `citext`, `pg_trgm` y `vector`; enums para visibilidad, premium, IA, reportes y notificaciones; triggers de `updated_at`; vistas de feed; buckets de storage; y funciones helper.
 
-## 8. Escalabilidad
-- Índices estratégicos: usuario, visibilidad, categorías, estilo, vectores de embedding.
-- Paginación obligatoria en feeds.
-- Realtime solo donde es necesario: chats y notificaciones.
-- Queries optimizadas por RLS y filtros.
-- Thumbnails y compresión para minimizar ancho de banda.
+## 8. Indices SQL
 
-## 9. UX/UI
-- Estilo minimalista, fashion tech, visual-first.
-- Paleta definida para modo claro y oscuro.
-- Layout limpio con cards suaves y botones redondeados.
-- Navegación fluida con Expo Router.
-- Skeleton loaders y estados de carga.
-- Onboarding elegante en futuras iteraciones.
-- Accesibilidad básica: contraste, etiquetas, tamaños táctiles.
+Los indices principales son:
 
-## 10. Formularios/Auth
-- Registro: email, password, username único.
-- Login: email, password.
-- Perfil: foto, username, bio, idioma, privacidad, estilo.
-- Validaciones: sanitización, longitud, formato y username único.
+- `garments_user_active_idx` para closet privado.
+- `garments_public_feed_idx` para explore sin realtime.
+- `garments_user_file_hash_active_idx` para evitar duplicados.
+- GIN en `ai_tags` y `dominant_palette`.
+- IVFFLAT opcional en `embedding_vector`.
+- `messages_chat_created_idx` para chat paginado.
+- `notifications_user_unread_idx` para bandeja eficiente.
 
-## 11. Funcionalidades
-- Closet virtual: subir, editar, eliminar prendas.
-- Outfits: creación, guardado y colecciones.
-- Explore social: contenido público filtrado por categoría y estilo.
-- Chat privado con bloqueo y reportes.
-- IA en backend para metadatos y recomendaciones.
+## 9. RLS Policies
 
-## 12. IA
-- Clasificación automática de prendas.
-- Detección de color, categoría, temporada, estilo y tags.
-- Recomendaciones de outfits.
-- IA ejecutada en backend mediante Edge Functions.
-- Costos controlados con peticiones únicas y sólo metadatos.
+RLS cubre todas las tablas. El propietario puede gestionar su contenido. Los demas solo ven contenido publico permitido, sin usuarios privados/bloqueados. Chat y mensajes requieren participacion. Reports son append-only para usuarios. Analytics y auditoria son service-role only para lectura.
 
-## 13. Chat y Social
-- Chat privado con participantes.
-- Reglas RLS para acceso solo a participantes.
-- Social feed optimizado con filtros y búsqueda.
-- Privacidad de perfiles públicos/privados.
-- Reportes y bloqueo básico.
+## 10. Backend
 
-## 14. Observabilidad
-- Frontend: Sentry para errores, PostHog para funnels.
-- Backend: logs de Supabase + Edge Functions.
-- Eventos estructurados con userId, action, status, metadata, timestamp.
-- RequestId único recomendado para trazabilidad completa.
+El backend es Postgres + Edge Functions. Postgres guarda verdad, permisos, counters, auditoria y limites. Edge Functions ejecutan IA, validan JWT, aplican rate limits, firman imagenes privadas y escriben resultados.
 
-## 15. Monetización
-Modelo freemium:
-- Gratis: closet básico, outfits manuales, social básico.
-- Premium: IA avanzada, outfits automáticos, planificación semanal, recomendaciones inteligentes, analytics personal.
+## 11. Edge Functions
 
-## 16. Roadmap MVP
-Fase 1:
-- Auth
-- Perfiles
-- Upload prendas
+- `analyze-garment`: analiza categoria, color, temporada, material, estilo, tags, patron y confianza.
+- `remove-bg-proxy`: usa remove.bg si esta configurado y guarda el asset procesado.
+- `generate-outfit`: premium only, genera outfits con prendas existentes.
+- `cleanup-orphan-assets`: job con secreto para limpiar Storage sin referencias.
 
-Fase 2:
-- Outfits
-- IA básica
+## 12. Seguridad
 
-Fase 3:
-- Explore social
+No hay service role en el cliente. Secrets viven en Supabase. Auth usa JWT validado en Edge. Inputs pasan por Zod en cliente y constraints SQL/backend. Storage separa originales privados de thumbnails publicos. Reportes, blocks, rate limits y limites de MIME/tamano reducen abuso.
 
-Fase 4:
-- Chat
-- Premium
+## 13. Observabilidad
 
-## 17. Riesgos
-- Abuso de storage y costo de imágenes.
-- Costos de IA si no se limita.
-- Feeds complejos si no se paginan.
-- Spam y chats no moderados.
-- Realtime excesivo.
-- Crecimiento rápido sin optimización.
+Sentry captura crashes y excepciones. PostHog captura funnels. Supabase Logs recibe logs JSON de Edge Functions. `analytics_events` guarda eventos criticos auditables sin reemplazar PostHog.
 
-## 18. Buenas Prácticas
-- Evitar sobreingeniería.
-- Minimizar requests y storage.
-- Backend como source of truth.
-- Usar componentes reutilizables.
-- Optimizar imágenes antes del upload.
+## 14. Logs y Tracing
 
-## 19. Ejemplos Código
-- `src/app/auth/login.tsx` y `src/app/auth/register.tsx`
-- `src/services/supabase.ts`
-- `supabase/edge-functions/ia-proxy/index.ts`
-- `supabase/schema.sql`
+Cada request a Edge Functions lleva `x-request-id`. Axios genera requestId, Sentry agrega breadcrumbs y Edge Functions loguean JSON con `requestId`, `userId`, funcion, status y error. Esto permite correlacionar mobile -> edge -> database.
 
-## 20. Políticas RLS
-Ver `supabase/policies.md` para políticas de acceso por tabla y recomendaciones.
+## 15. UX/UI
 
-## 21. Recomendaciones Finales
-- Desplegar en Supabase gratuito para MVP.
-- Mantener IA en proxies y limitar requests.
-- Usar thumbnails y WebP en Storage.
-- Iterar rápido sobre UX y datos de usuarios.
-- Hacer auditoría de RLS antes del lanzamiento.
+La UI es minimalista, premium y mobile-first. Paleta light: `#F8F8F8`, `#FFFFFF`, `#8B5CF6`, `#D6D3D1`, `#1F1F1F`. Paleta dark preparada: `#121212`, `#1E1E1E`, `#A78BFA`, `#F5F5F5`.
+
+## 16. Navegacion
+
+Expo Router define rutas: auth, closet, outfits, explore, chat y settings. La navegacion principal usa un tab bar simple para velocidad y claridad.
+
+## 17. Auth
+
+Supabase Auth maneja login/register. Un trigger crea `public.users` al registrar. El store de Zustand mantiene sesion y perfil; no decide permisos reales.
+
+## 18. Closet
+
+El closet lista prendas del usuario con TanStack Query. Upload usa Image Picker, compresion a WebP, thumbnail local, hash SHA-256 y subida a buckets separados. La prenda se inserta privada y luego se dispara IA.
+
+## 19. IA
+
+La IA corre solo en Edge Functions. Para reducir costo:
+
+- `detail: "low"` en vision para analisis de prenda.
+- Structured Outputs para evitar reintentos por JSON invalido.
+- Rate limits por usuario.
+- Cache por `ai_status`, `file_hash`, `similarity_hash`.
+- Embeddings desactivados por defecto.
+- Modelos configurables con `CLOSETLY_VISION_MODEL` y `CLOSETLY_TEXT_MODEL`.
+
+## 20. Explore Social
+
+Explore consume `public_garments_feed`, una vista estrecha sin originales privados ni metadata pesada. Usa paginacion por cursor y cache; no usa realtime.
+
+## 21. Chat
+
+Chat usa Realtime solo en `messages` y solo por `chat_id`. Las politicas validan participantes. Inserciones actualizan preview y crean notificaciones criticas.
+
+## 22. Monetizacion
+
+Free: closet basico, outfits manuales, social basico. Premium: outfits IA, recomendaciones semanales, analytics de uso y sugerencias inteligentes. La validacion premium ocurre en `generate-outfit`.
+
+## 23. Escalabilidad
+
+El MVP escala primero con mejores queries: vistas estrechas, indices parciales, paginacion, cache y storage optimizado. Cuando el feed crezca, se puede agregar tabla materializada `feed_items` sin cambiar el cliente.
+
+## 24. Optimizacion
+
+Imagenes: max 1080px, WebP, thumbnails, cache local con `expo-image`, buckets por tipo, limpieza de huerfanos. SQL: selects estrechos, limites, indices parciales, no joins costosos en mobile. IA: procesamiento diferido, rate limits y caching.
+
+## 25. CI/CD
+
+GitHub Actions ejecuta install, lint, typecheck y tests. EAS preview queda manual via `workflow_dispatch`. Secrets se inyectan desde GitHub, no se commitean.
+
+## 26. OTA Updates
+
+EAS Update usa branches `development`, `preview` y `production`. `runtimeVersion` sigue `appVersion`, evitando mandar OTA incompatible con nativos.
+
+## 27. Testing
+
+Hay tests unitarios para Zod validations e integracion basica de cache keys. La siguiente capa debe cubrir hooks con mocks de Supabase, servicios de Edge y E2E smoke con Maestro o Detox.
+
+## 28. Riesgos
+
+- Costos IA si no se respetan rate limits.
+- Storage si se guardan originales grandes o duplicados.
+- Feed lento si se agregan joins sociales sin materializar.
+- Moderacion insuficiente si reports no tienen workflow admin.
+- remove.bg puede ser caro; debe tener alternativa open-source/self-host cuando haya volumen.
+
+## 29. Roadmap MVP
+
+1. Conectar Supabase real, aplicar schema y buckets.
+2. Validar auth y upload en dispositivo.
+3. Deploy `analyze-garment` y confirmar metadata.
+4. Crear editor de metadata.
+5. Agregar detalle de prenda y cambio de visibilidad.
+6. Crear flujo de chat desde prenda publica.
+7. Agregar premium flags y compras.
+8. Implementar recomendaciones semanales.
+9. Montar panel admin para reports/moderacion.
+
+## 30. Ejemplos Codigo
+
+Subir prenda:
+
+```ts
+const asset = await prepareGarmentImage(uri);
+const uploaded = await uploadGarmentAssets(user.id, asset.fileHash, asset.originalUri, asset.thumbnailUri);
+const garment = await createGarment({
+  image_url: uploaded.originalPath,
+  thumbnail_url: uploaded.thumbnailPublicUrl,
+  storage_path: uploaded.originalPath,
+  thumbnail_path: uploaded.thumbnailPath,
+  file_hash: asset.fileHash
+});
+```
+
+Llamar IA:
+
+```ts
+await api.post("analyze-garment", { garment_id: garment.id });
+```
+
+RLS conceptual:
+
+```sql
+create policy garments_select_visible on public.garments
+for select using (
+  deleted_at is null
+  and (user_id = auth.uid() or (visibility <> 'private' and public.can_view_user(user_id)))
+);
+```
+
+## 31. Recomendaciones Finales
+
+Mantener el monolito modular hasta que el producto pruebe traccion. No mover a microservicios antes de tener limites medibles. Optimizar primero imagenes, queries y frecuencia IA. Usar Edge Functions como frontera anti-abuso. Mantener proveedores intercambiables: Storage paths propios, prompts versionados, modelos por env vars y schema SQL portable.

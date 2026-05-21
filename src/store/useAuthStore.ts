@@ -1,27 +1,26 @@
+import type { Session, User } from "@supabase/supabase-js";
 import { create } from "zustand";
-import { supabase } from "@services/supabase";
+
+import type { UserProfile } from "@/types";
 
 type AuthState = {
-  session: any | null;
-  login: (data: { email: string; password: string }) => Promise<void>;
-  register: (data: { email: string; password: string; username: string }) => Promise<void>;
-  logout: () => Promise<void>;
+  session: Session | null;
+  user: User | null;
+  profile: UserProfile | null;
+  isReady: boolean;
+  setSession: (session: Session | null) => void;
+  setProfile: (profile: UserProfile | null) => void;
+  setReady: (isReady: boolean) => void;
+  reset: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   session: null,
-  login: async ({ email, password }) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    set({ session: data.session });
-  },
-  register: async ({ email, password, username }) => {
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username } } });
-    if (error) throw error;
-    set({ session: data.session });
-  },
-  logout: async () => {
-    await supabase.auth.signOut();
-    set({ session: null });
-  }
+  user: null,
+  profile: null,
+  isReady: false,
+  setSession: (session) => set({ session, user: session?.user ?? null }),
+  setProfile: (profile) => set({ profile }),
+  setReady: (isReady) => set({ isReady }),
+  reset: () => set({ session: null, user: null, profile: null })
 }));

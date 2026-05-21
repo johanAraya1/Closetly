@@ -1,0 +1,33 @@
+project_id = "closetly"
+
+[api]
+enabled = true
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+site_url = "closetly://"
+additional_redirect_urls = ["closetly://auth/callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+[realtime]
+enabled = true
+
+[functions.analyze-garment]
+verify_jwt = true
+
+[functions.remove-bg-proxy]
+verify_jwt = true
+
+[functions.generate-outfit]
+verify_jwt = true
+
+[functions.cleanup-orphan-assets]
+verify_jwt = false

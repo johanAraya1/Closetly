@@ -1,10 +1,9 @@
 import { View } from "react-native";
 
-type LoadingSkeletonProps = {
-  width?: string | number;
-  height?: string | number;
-};
-
-export function LoadingSkeleton({ width = "100%", height = 16 }: LoadingSkeletonProps) {
-  return <View className="rounded-full bg-secondary opacity-50" style={{ width, height }} />;
-}
+export const LoadingSkeleton = () => (
+  <View className="gap-3">
+    <View className="h-44 rounded-card bg-muted opacity-40" />
+    <View className="h-44 rounded-card bg-muted opacity-30" />
+    <View className="h-44 rounded-card bg-muted opacity-20" />
+  </View>
+);

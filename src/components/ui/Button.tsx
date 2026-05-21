@@ -1,22 +1,45 @@
-import { Pressable, Text, PressableProps } from "react-native";
-import clsx from "clsx";
+import { ActivityIndicator, Pressable, Text, type PressableProps } from "react-native";
+
+import { cn } from "@/utils/cn";
+
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 type ButtonProps = PressableProps & {
   title: string;
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: ButtonVariant;
+  loading?: boolean;
 };
 
-export function Button({ title, variant = "primary", className, ...props }: ButtonProps) {
-  const baseStyles = "rounded-3xl px-4 py-3 items-center justify-center";
-  const variants = {
-    primary: "bg-primary text-white",
-    secondary: "bg-secondary text-text",
-    ghost: "bg-transparent border border-secondary text-text"
-  };
+const variantClassName: Record<ButtonVariant, string> = {
+  primary: "bg-violet",
+  secondary: "bg-surface border border-muted",
+  ghost: "bg-transparent",
+  danger: "bg-red-600"
+};
 
-  return (
-    <Pressable className={`${baseStyles} ${variants[variant]} ${className ?? ""}`} {...props}>
-      <Text className="text-base font-semibold text-center text-white">{title}</Text>
-    </Pressable>
-  );
-}
+const textClassName: Record<ButtonVariant, string> = {
+  primary: "text-white",
+  secondary: "text-ink",
+  ghost: "text-ink",
+  danger: "text-white"
+};
+
+export const Button = ({ title, variant = "primary", loading, disabled, className, ...props }: ButtonProps) => (
+  <Pressable
+    accessibilityRole="button"
+    disabled={disabled || loading}
+    className={cn(
+      "min-h-12 items-center justify-center rounded-card px-4",
+      variantClassName[variant],
+      (disabled || loading) && "opacity-60",
+      className
+    )}
+    {...props}
+  >
+    {loading ? (
+      <ActivityIndicator color={variant === "secondary" || variant === "ghost" ? "#1F1F1F" : "#FFFFFF"} />
+    ) : (
+      <Text className={cn("text-center text-base font-semibold", textClassName[variant])}>{title}</Text>
+    )}
+  </Pressable>
+);

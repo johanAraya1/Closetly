@@ -1,19 +1,36 @@
-import { ReactNode } from "react";
-import { View, Text, StatusBar } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, Text, View, type ViewProps } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type ScreenShellProps = {
-  title: string;
-  children: ReactNode;
+import { cn } from "@/utils/cn";
+
+type ScreenShellProps = ViewProps & {
+  title?: string;
+  subtitle?: string;
+  scroll?: boolean;
 };
 
-export function ScreenShell({ title, children }: ScreenShellProps) {
+export const ScreenShell = ({ title, subtitle, scroll = true, children, className }: ScreenShellProps) => {
+  const Content = scroll ? ScrollView : View;
+
   return (
-    <View className="flex-1 bg-background pt-6">
-      <StatusBar style="dark" />
-      <View className="px-4 pb-4">
-        <Text className="text-2xl font-bold text-text">{title}</Text>
-      </View>
-      {children}
-    </View>
+    <SafeAreaView className="flex-1 bg-canvas">
+      <KeyboardAvoidingView
+        behavior={Platform.select({ ios: "padding", android: undefined })}
+        className="flex-1"
+      >
+        <Content
+          className={cn("flex-1 px-5", className)}
+          {...(scroll ? { contentContainerStyle: { paddingBottom: 28 } } : {})}
+        >
+          {title ? (
+            <View className="mb-5 mt-2">
+              <Text className="text-3xl font-bold text-ink">{title}</Text>
+              {subtitle ? <Text className="mt-2 text-base text-stone-500">{subtitle}</Text> : null}
+            </View>
+          ) : null}
+          {children}
+        </Content>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
-}
+};

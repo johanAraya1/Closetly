@@ -1,27 +1,16 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": [
-      "DOM",
-      "ES2020"
-    ],
-    "jsx": "react-jsx",
-    "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
-    "allowJs": false,
     "strict": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "module": "ESNext",
-    "types": [
-      "nativewind/types",
-      "react-native"
-    ],
     "baseUrl": ".",
     "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@app/*": [
+        "src/app/*"
+      ],
       "@components/*": [
         "src/components/*"
       ],
@@ -31,28 +20,43 @@
       "@services/*": [
         "src/services/*"
       ],
+      "@hooks/*": [
+        "src/hooks/*"
+      ],
       "@store/*": [
         "src/store/*"
       ],
-      "@utils/*": [
-        "src/utils/*"
+      "@lib/*": [
+        "src/lib/*"
+      ],
+      "@theme/*": [
+        "src/theme/*"
+      ],
+      "@i18n/*": [
+        "src/i18n/*"
       ],
       "@types/*": [
         "src/types/*"
       ],
-      "@constants/*": [
-        "src/constants/*"
+      "@utils/*": [
+        "src/utils/*"
       ]
-    }
+    },
+    "types": [
+      "jest",
+      "node",
+      "nativewind/types"
+    ]
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "app/**/*.ts",
-    "app/**/*.tsx"
+    "src",
+    "__tests__",
+    "app.config.ts",
+    "nativewind-env.d.ts",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ],
   "exclude": [
     "node_modules"
-  ],
-  "extends": "expo/tsconfig.base"
+  ]
 }
