@@ -24,8 +24,8 @@ export const ScreenShell = ({ title, subtitle, scroll = true, children, classNam
         >
           {title ? (
             <View className="mb-5 mt-2">
-              <Text className="text-3xl font-bold text-ink">{title}</Text>
-              {subtitle ? <Text className="mt-2 text-base text-stone-500">{subtitle}</Text> : null}
+              <Text className="text-3xl font-bold text-gray-900">{title}</Text>
+              {subtitle ? <Text className="mt-2 text-base text-gray-500">{subtitle}</Text> : null}
             </View>
           ) : null}
           {children}

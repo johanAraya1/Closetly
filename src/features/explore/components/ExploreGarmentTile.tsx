@@ -1,5 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { Heart } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 import type { ExploreGarment } from "@/types";
@@ -26,10 +26,10 @@ export const ExploreGarmentTile = ({ garment, onSave }: ExploreGarmentTileProps)
       </View>
       <View className="flex-row items-center justify-between p-3">
         <View className="flex-1 pr-2">
-          <Text className="text-sm font-semibold text-ink" numberOfLines={1}>
+          <Text className="text-sm font-semibold text-gray-900" numberOfLines={1}>
             {garment.category ?? "Look"}
           </Text>
-          <Text className="text-xs text-stone-500" numberOfLines={1}>
+          <Text className="text-xs text-gray-500" numberOfLines={1}>
             {[garment.style, garment.color_primary, garment.visibility].filter(Boolean).join(" / ")}
           </Text>
         </View>
@@ -39,7 +39,7 @@ export const ExploreGarmentTile = ({ garment, onSave }: ExploreGarmentTileProps)
           onPress={onSave}
           className="h-10 w-10 items-center justify-center rounded-full bg-canvas"
         >
-          <Heart size={18} color="#8B5CF6" />
+          <Ionicons name="heart-outline" size={18} color="#62D9C7" />
         </Pressable>
       </View>
     </View>

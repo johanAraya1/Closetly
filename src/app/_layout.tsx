@@ -11,6 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
 import { useAuthBootstrap } from "@/features/auth/hooks/useAuthBootstrap";
+import { useOtaUpdates } from "@/hooks/useOtaUpdates";
 import { initI18n, i18n } from "@/i18n";
 import { queryClient } from "@/lib/queryClient";
 import { initAnalytics } from "@/services/analytics";
@@ -47,6 +48,7 @@ const AuthGate = ({ children }: { children: ReactNode }) => {
 
 export default function RootLayout() {
   const [i18nReady, setI18nReady] = useState(false);
+  useOtaUpdates();
 
   useEffect(() => {
     initSentry();

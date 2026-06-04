@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
@@ -36,7 +36,7 @@ export const ClosetScreen = () => {
         <View className="mt-6">
           {garments.isLoading ? <LoadingSkeleton /> : null}
           {!garments.isLoading && garments.data?.length === 0 ? (
-            <EmptyState title={t("emptyCloset")} description="WebP, thumbnails y analisis IA corren en pipeline de bajo costo." />
+            <EmptyState title={t("emptyCloset")} message="WebP, thumbnails y analisis IA corren en pipeline de bajo costo." />
           ) : null}
           <View className="flex-row flex-wrap justify-between">
             {garments.data?.map((garment) => <GarmentCard key={garment.id} garment={garment} />)}
@@ -44,8 +44,8 @@ export const ClosetScreen = () => {
         </View>
 
         <View className="mt-2 flex-row items-center gap-2 rounded-card bg-surface p-3">
-          <Plus size={18} color="#8B5CF6" />
-          <Text className="flex-1 text-sm text-stone-600">
+          <Ionicons name="information-circle-outline" size={18} color="#62D9C7" />
+          <Text className="flex-1 text-sm text-gray-500">
             Las prendas nuevas quedan privadas hasta que cambies su visibilidad.
           </Text>
         </View>

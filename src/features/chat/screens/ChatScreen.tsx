@@ -18,7 +18,7 @@ export const ChatScreen = () => {
       <ScreenShell title={t("chat")} subtitle="Realtime solo para mensajes y notificaciones criticas.">
         {chats.isLoading ? <LoadingSkeleton /> : null}
         {!chats.isLoading && chats.data?.length === 0 ? (
-          <EmptyState title="Sin chats" description="Los chats se crean desde prendas publicadas para venta, regalo o intercambio." />
+          <EmptyState title="Sin chats" message="Los chats se crean desde prendas publicadas para venta, regalo o intercambio." />
         ) : null}
         {chats.data?.map((chat) => <ChatListItem key={chat.id} chat={chat} />)}
       </ScreenShell>

@@ -22,7 +22,7 @@ export const ExploreScreen = () => {
       <ScreenShell title={t("explore")} subtitle="Closets publicos, intercambio, venta y regalo.">
         {explore.isLoading ? <LoadingSkeleton /> : null}
         {!explore.isLoading && items.length === 0 ? (
-          <EmptyState title="Nada publico aun" description="El feed usa paginacion, cache y cero realtime para cuidar costos." />
+          <EmptyState title="Nada publico aun" message="El feed usa paginacion, cache y cero realtime para cuidar costos." />
         ) : null}
         <View className="gap-1">
           {items.map((garment) => (

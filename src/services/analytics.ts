@@ -1,6 +1,6 @@
 import { PostHog } from "posthog-react-native";
 
-import { env } from "@/constants/env";
+import { env, isConfigured } from "@/constants/env";
 import { supabase } from "@/services/supabase";
 
 let client: PostHog | null = null;
@@ -60,6 +60,8 @@ export const trackCriticalEvent = async (
   properties: Record<string, unknown> = {}
 ) => {
   await track(event, properties);
+  if (!isConfigured) return;
+
   const { data } = await supabase.auth.getUser();
   if (!data.user) return;
 

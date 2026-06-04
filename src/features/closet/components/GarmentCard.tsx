@@ -24,10 +24,10 @@ export const GarmentCard = ({ garment }: GarmentCardProps) => {
         ) : null}
       </View>
       <View className="gap-1 p-3">
-        <Text className="text-sm font-semibold text-ink" numberOfLines={1}>
+        <Text className="text-sm font-semibold text-gray-900" numberOfLines={1}>
           {garment.name ?? garment.category ?? "Prenda"}
         </Text>
-        <Text className="text-xs text-stone-500" numberOfLines={1}>
+        <Text className="text-xs text-gray-500" numberOfLines={1}>
           {[garment.color_primary, garment.season, garment.style].filter(Boolean).join(" / ") || garment.ai_status}
         </Text>
       </View>

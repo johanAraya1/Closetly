@@ -1,7 +1,22 @@
-import "dotenv/config";
+import { config as dotenvConfig } from "dotenv";
+import { resolve } from "path";
 import type { ExpoConfig } from "expo/config";
 
-const config: ExpoConfig = {
+// Load .env from project root. Dotenv's default resolves from CWD,
+// but Gradle may run from android/, so we point explicitly.
+dotenvConfig({ path: resolve(__dirname, ".env") });
+
+const getEnv = (key: string) => {
+  const value = process.env[key]?.trim();
+  return value && value.length > 0 ? value : undefined;
+};
+
+const EAS_PROJECT_ID = getEnv("EAS_PROJECT_ID") ?? "2e92ed2e-9d74-4a40-8af7-a064109310ca";
+const EAS_UPDATE_URL = getEnv("EXPO_PUBLIC_EAS_UPDATE_URL") ?? `https://u.expo.dev/${EAS_PROJECT_ID}`;
+const APP_ENV = getEnv("EXPO_PUBLIC_APP_ENV") ?? "development";
+const EAS_UPDATE_CHANNEL = getEnv("EAS_UPDATE_CHANNEL") ?? (APP_ENV === "production" ? "production" : "preview");
+
+const expoConfig: ExpoConfig = {
   name: "Closetly",
   slug: "closetly",
   scheme: "closetly",
@@ -9,13 +24,16 @@ const config: ExpoConfig = {
   orientation: "portrait",
   userInterfaceStyle: "automatic",
   jsEngine: "hermes",
-  owner: process.env.EXPO_OWNER,
-  projectId: "2e92ed2e-9d74-4a40-8af7-a064109310ca",
+  owner: getEnv("EXPO_OWNER") ?? "juan_topo",
   runtimeVersion: {
     policy: "appVersion"
   },
   updates: {
-    url: process.env.EXPO_PUBLIC_EAS_UPDATE_URL
+    url: EAS_UPDATE_URL,
+    requestHeaders: {
+      "expo-channel-name": EAS_UPDATE_CHANNEL
+    },
+    checkAutomatically: "NEVER"
   },
   ios: {
     supportsTablet: false,
@@ -28,12 +46,13 @@ const config: ExpoConfig = {
   android: {
     package: "com.closetly.app",
     adaptiveIcon: {
-      backgroundColor: "#F8F8F8"
+      backgroundColor: "#62D9C7"
     },
     permissions: ["CAMERA", "READ_MEDIA_IMAGES", "POST_NOTIFICATIONS"]
   },
   plugins: [
     "expo-router",
+    "expo-font",
     "expo-localization",
     "expo-notifications",
     [
@@ -49,15 +68,15 @@ const config: ExpoConfig = {
   },
   extra: {
     eas: {
-      projectId: process.env.EAS_PROJECT_ID
+      projectId: EAS_PROJECT_ID
     },
-    supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-    supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-    posthogHost: process.env.EXPO_PUBLIC_POSTHOG_HOST,
-    posthogKey: process.env.EXPO_PUBLIC_POSTHOG_KEY,
-    sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-    appEnv: process.env.EXPO_PUBLIC_APP_ENV ?? "development"
+    supabaseUrl: getEnv("EXPO_PUBLIC_SUPABASE_URL"),
+    supabaseAnonKey: getEnv("EXPO_PUBLIC_SUPABASE_ANON_KEY"),
+    posthogHost: getEnv("EXPO_PUBLIC_POSTHOG_HOST"),
+    posthogKey: getEnv("EXPO_PUBLIC_POSTHOG_KEY"),
+    sentryDsn: getEnv("EXPO_PUBLIC_SENTRY_DSN"),
+    appEnv: APP_ENV
   }
 };
 
-export default config;
+export default expoConfig;

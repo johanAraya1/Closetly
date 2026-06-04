@@ -1,13 +1,33 @@
 import { Text, View } from "react-native";
+import { Button } from "./Button";
 
 type EmptyStateProps = {
+  icon?: React.ReactNode;
   title: string;
-  description?: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
 };
 
-export const EmptyState = ({ title, description }: EmptyStateProps) => (
-  <View className="items-center justify-center rounded-card border border-dashed border-muted bg-surface p-6">
-    <Text className="text-center text-lg font-semibold text-ink">{title}</Text>
-    {description ? <Text className="mt-2 text-center text-sm text-stone-500">{description}</Text> : null}
+export const EmptyState = ({
+  icon,
+  title,
+  message,
+  actionLabel,
+  onAction,
+}: EmptyStateProps) => (
+  <View className="items-center justify-center px-8 py-10">
+    {icon && <View className="mb-4">{icon}</View>}
+    <Text className="mt-4 text-center text-xl font-semibold text-gray-900">
+      {title}
+    </Text>
+    <Text className="mt-2 text-center text-base leading-6 text-gray-500">
+      {message}
+    </Text>
+    {actionLabel && onAction && (
+      <View className="mt-6">
+        <Button title={actionLabel} onPress={onAction} />
+      </View>
+    )}
   </View>
 );

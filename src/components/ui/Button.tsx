@@ -1,45 +1,78 @@
-import { ActivityIndicator, Pressable, Text, type PressableProps } from "react-native";
-
+import { ActivityIndicator, Pressable, Text, View, type PressableProps } from "react-native";
 import { cn } from "@/utils/cn";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
+type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonProps = PressableProps & {
   title: string;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
+  fullWidth?: boolean;
+  icon?: React.ReactNode;
 };
 
-const variantClassName: Record<ButtonVariant, string> = {
-  primary: "bg-violet",
-  secondary: "bg-surface border border-muted",
-  ghost: "bg-transparent",
-  danger: "bg-red-600"
-};
+export const Button = ({
+  title,
+  variant = "primary",
+  size = "md",
+  loading,
+  disabled,
+  fullWidth,
+  icon,
+  className,
+  ...props
+}: ButtonProps) => {
+  const isOutlineOrGhost = variant === "outline" || variant === "ghost";
 
-const textClassName: Record<ButtonVariant, string> = {
-  primary: "text-white",
-  secondary: "text-ink",
-  ghost: "text-ink",
-  danger: "text-white"
+  return (
+    <Pressable
+      accessibilityRole="button"
+      disabled={disabled || loading}
+      className={cn(
+        "flex-row items-center justify-center rounded-card",
+        // Variants
+        variant === "primary" && "bg-primary",
+        variant === "secondary" && "border-2 border-primary bg-white",
+        variant === "outline" && "border-2 border-primary bg-transparent",
+        variant === "ghost" && "bg-transparent",
+        variant === "danger" && "border-2 border-error bg-red-50",
+        // Sizes
+        size === "sm" && "px-4 py-2",
+        size === "md" && "px-6 py-3",
+        size === "lg" && "px-8 py-4",
+        // States
+        (disabled || loading) && "opacity-50",
+        fullWidth && "w-full",
+        className,
+      )}
+      {...props}
+    >
+      {loading ? (
+        <ActivityIndicator
+          color={variant === "primary" ? "#FFFFFF" : "#62D9C7"}
+        />
+      ) : (
+        <View className="flex-row items-center">
+          {icon && <View className="mr-2">{icon}</View>}
+          <Text
+            className={cn(
+              "font-semibold",
+              // Text color per variant
+              variant === "primary" && "text-white",
+              (isOutlineOrGhost || variant === "secondary") && "text-primary",
+              variant === "danger" && "text-error",
+              // Text size per size
+              size === "sm" && "text-sm",
+              size === "md" && "text-base",
+              size === "lg" && "text-lg",
+            )}
+          >
+            {title}
+          </Text>
+        </View>
+      )}
+    </Pressable>
+  );
 };
-
-export const Button = ({ title, variant = "primary", loading, disabled, className, ...props }: ButtonProps) => (
-  <Pressable
-    accessibilityRole="button"
-    disabled={disabled || loading}
-    className={cn(
-      "min-h-12 items-center justify-center rounded-card px-4",
-      variantClassName[variant],
-      (disabled || loading) && "opacity-60",
-      className
-    )}
-    {...props}
-  >
-    {loading ? (
-      <ActivityIndicator color={variant === "secondary" || variant === "ghost" ? "#1F1F1F" : "#FFFFFF"} />
-    ) : (
-      <Text className={cn("text-center text-base font-semibold", textClassName[variant])}>{title}</Text>
-    )}
-  </Pressable>
-);

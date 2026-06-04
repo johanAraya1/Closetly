@@ -35,7 +35,7 @@ jobs:
         run: npm test -- --runInBand
 
   eas-preview:
-    name: EAS preview build
+    name: EAS Android preview APK
     runs-on: ubuntu-latest
     needs: validate
     if: github.event_name == 'workflow_dispatch'
@@ -59,8 +59,60 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build preview
-        run: eas build --profile preview --platform all --non-interactive
+        run: eas build --profile preview --platform android --non-interactive
         env:
+          EAS_PROJECT_ID: 2e92ed2e-9d74-4a40-8af7-a064109310ca
+          EXPO_OWNER: juan_topo
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ secrets.EXPO_PUBLIC_POSTHOG_KEY }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+
+  eas-update:
+    name: EAS OTA update
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'main')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Publish preview update
+        if: github.ref_name == 'develop' || github.ref_name == 'main'
+        run: eas update --branch preview --message "CI preview update ${{ github.ref_name }} ${{ github.sha }}" --non-interactive
+        env:
+          EAS_PROJECT_ID: 2e92ed2e-9d74-4a40-8af7-a064109310ca
+          EXPO_OWNER: juan_topo
+          EXPO_PUBLIC_APP_ENV: preview
+          EAS_UPDATE_CHANNEL: preview
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+          EXPO_PUBLIC_POSTHOG_KEY: ${{ secrets.EXPO_PUBLIC_POSTHOG_KEY }}
+          EXPO_PUBLIC_SENTRY_DSN: ${{ secrets.EXPO_PUBLIC_SENTRY_DSN }}
+
+      - name: Publish production update
+        if: github.ref_name == 'main'
+        run: eas update --branch production --message "CI production update ${{ github.sha }}" --non-interactive
+        env:
+          EAS_PROJECT_ID: 2e92ed2e-9d74-4a40-8af7-a064109310ca
+          EXPO_OWNER: juan_topo
+          EXPO_PUBLIC_APP_ENV: production
+          EAS_UPDATE_CHANNEL: production
           EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
           EXPO_PUBLIC_POSTHOG_KEY: ${{ secrets.EXPO_PUBLIC_POSTHOG_KEY }}

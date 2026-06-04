@@ -34,12 +34,12 @@ export const OutfitsScreen = () => {
           loading={generate.isPending}
           onPress={() => generate.mutate()}
         />
-        {!isPremium ? <Text className="mt-2 text-sm text-stone-500">El backend valida premium; el cliente solo muestra la pista visual.</Text> : null}
+        {!isPremium ? <Text className="mt-2 text-sm text-gray-500">El backend valida premium; el cliente solo muestra la pista visual.</Text> : null}
         {generate.error ? <Text className="mt-2 text-sm text-red-600">{getErrorMessage(generate.error)}</Text> : null}
         <View className="mt-6">
           {outfits.isLoading ? <LoadingSkeleton /> : null}
           {!outfits.isLoading && outfits.data?.length === 0 ? (
-            <EmptyState title="Sin outfits aun" description="Crea combinaciones manuales desde tus prendas o genera una premium." />
+            <EmptyState title="Sin outfits aun" message="Crea combinaciones manuales desde tus prendas o genera una premium." />
           ) : null}
           {outfits.data?.map((outfit) => <OutfitCard key={outfit.id} outfit={outfit} />)}
         </View>
